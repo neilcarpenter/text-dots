@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>text dots</title>
+</head>
+<body>
+	
+	<canvas id="c"></canvas>
+
+	<script src="data.js"></script>
+
+	<script>
+
+		var SCALE = 2,
+			WIDTH = 360*SCALE,
+			HEIGHT = 770*SCALE,
+			PADDING = 50*SCALE,
+			COLS = 26,
+			ROWS = data.length
+			COL_WIDTH = WIDTH / COLS,
+			ROW_HEIGHT = HEIGHT / ROWS;
+
+		var MIN_ALPHA = 0.2;
+		var MAX_ALPHA = 0.6;
+		// var longestWordChars = getLongestWordChars(data);
+		// var alphaStep = (MAX_ALPHA - MIN_ALPHA) / longestWordChars;
+
+		var maxRadius = ((COL_WIDTH < ROW_HEIGHT ? COL_WIDTH : ROW_HEIGHT) * 0.9)/2;
+
+		var allChars = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+		var c = document.getElementById('c'),
+			ctx = c.getContext('2d');
+
+		c.width = WIDTH+(2*PADDING);
+		c.height = HEIGHT+(2*PADDING);
+
+		ctx.fillStyle = "#DC3434";
+		ctx.fillRect(0, 0, WIDTH+(2*PADDING), HEIGHT+(2*PADDING));
+
+		data.forEach(function(word, i) {
+
+			word = word.toLowerCase();
+			chars = word.split('');
+
+			var charCounters = getCharCounters(chars);
+
+			chars.forEach(function(char, j) {
+
+				var charIdx = allChars.indexOf(char);
+				var alphaStep = (MAX_ALPHA - MIN_ALPHA) / word.length;
+				var x, y, w;
+
+				if (charIdx > -1) {
+
+					charCounters[char].current++;
+
+					w = (COL_WIDTH/(1+charCounters[char].total));
+					x = PADDING+(charIdx*COL_WIDTH+w*charCounters[char].current);
+					y = PADDING+(i*ROW_HEIGHT+(ROW_HEIGHT/2));
+					alpha = (MAX_ALPHA-(alphaStep*j));
+					radius = maxRadius / charCounters[char].total;
+
+					ctx.beginPath();
+					// ctx.fillStyle = 'rgba(213, 14, 14, ' + alpha + ')';
+					ctx.fillStyle = 'rgba(255, 255, 255, ' + alpha + ')';
+					ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+					ctx.fill();
+
+					// ctx.beginPath();
+					// ctx.fillStyle = '#fff';
+					// ctx.arc(x, y, radius*0.1, 0, 2 * Math.PI, false);
+					// ctx.fill();
+
+					ctx.beginPath();
+					ctx.arc(x, y, (Math.random()*radius*10)+radius, 0, 2 * Math.PI, false);
+					ctx.lineWidth = (0.5)*SCALE;
+					// ctx.strokeStyle = 'rgba(213, 14, 14, ' + (alpha*0.3) + ')';
+					ctx.strokeStyle = 'rgba(255, 255, 255, ' + (alpha*0.3) + ')';
+					ctx.stroke();
+
+				}
+
+			});
+
+		});
+
+		function getLongestWordChars(data) {
+
+			var longest = 0;
+
+			data.forEach(function(word) {
+
+				if (word.length > longest) longest = word.length;
+
+			});
+
+			return longest;
+		}
+
+		function getCharCounters(chars) {
+
+			var counters = {};
+
+			allChars.forEach(function(char) {
+
+				counters[char] = { current : 0, total : 0 };
+
+			});
+
+			chars.forEach(function(char) {
+
+				if (allChars.indexOf(char) > -1) {
+					counters[char].total++;
+				}
+
+			});
+
+			return counters;
+
+		}
+
+	</script>
+
+</body>
+</html>
